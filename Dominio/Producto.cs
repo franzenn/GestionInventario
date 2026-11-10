@@ -5,13 +5,13 @@ public class Producto
     //Propiedades
     public string Nombre { get; }
     public string Id { get; }
-    public string Categoria { get; }
+    public string? Categoria { get; }
     public int StockMinimo { get; }
     public int StockMaximo { get; }
     public int Cantidad { get; private set; }
 
     //Constructor
-    public Producto(string nombre, string id, string categoria, int stockMinimo, int stockMaximo)
+    public Producto(string nombre, string id, string? categoria, int stockMinimo, int stockMaximo)
     {
         if (string.IsNullOrWhiteSpace(id))
         {
@@ -27,11 +27,11 @@ public class Producto
         }
         if (stockMaximo<=stockMinimo)
         {
-            throw new ArgumentException("El stock maximo no puede ser menor que el stock minimo");
+            throw new ArgumentException("El stock maximo debe ser mayor que el stock minimo");
         }
-        Nombre = nombre;
-        Id = id;
-        Categoria = categoria;
+        Nombre = nombre.Trim().ToUpper();
+        Id = id.Trim().ToUpper();
+        Categoria = categoria.Trim().ToUpper();
         StockMinimo = stockMinimo;
         StockMaximo = stockMaximo;
         Cantidad = 0;

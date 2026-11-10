@@ -8,6 +8,7 @@ public class Inventario
 
     public bool Existe(string id)
     {
+        id = id.Trim().ToUpper();
         foreach (var producto in _productos)
         {
             if (producto.Id == id)
@@ -29,6 +30,7 @@ public class Inventario
 
     public Producto BuscarPorId(string id)
     {
+        id = id.Trim().ToUpper();
         foreach (var producto in _productos)
         {
 
