@@ -1,3 +1,4 @@
+using System.Reflection;
 using GestionInventario.Dominio;
 
 namespace GestionInventario.Presentacion;
@@ -31,6 +32,21 @@ public class MenuConsola
                         break;
                     case "2":
                         AgregarProducto();
+                        break;
+                    case "3":
+                        ConsultarProducto();
+                        break;
+                    case "4":
+                        RegistrarIngreso();
+                        break;
+                    case "5":
+                        RegistrarEgreso();
+                        break;
+                    case "6":
+                        EliminarProducto();
+                        break;
+                    case "7":
+                        Alertas();
                         break;
                     case "0":
                         seguir = false;
@@ -108,6 +124,76 @@ public class MenuConsola
 
     }
 
+    private void ConsultarProducto()
+    {
+        Console.Write("Escribir ID del producto a consultar: ");
+        string id = Console.ReadLine();
+        Producto productoBuscado = _inventario.BuscarPorId(id);
+
+        Console.WriteLine($"ID: {productoBuscado.Id}\nNombre: {productoBuscado.Nombre}\nCategoría: {productoBuscado.Categoria}\nCantidad: {productoBuscado.Cantidad}\nStock mínimo: {productoBuscado.StockMinimo}\nStock máximo: {productoBuscado.StockMaximo}");   
+    }
+
+    private void RegistrarIngreso()
+    {
+        Console.Write("Escribir ID del producto a ingresar: ");
+        string id = Console.ReadLine();
+        int cantidad = LeerEntero("Escribir cantidad del producto a ingresar: ");
+        Producto productoBuscado = _inventario.BuscarPorId(id);
+
+        _inventario.RegistrarIngreso(id, cantidad);
+
+        MostrarExito($"Se ingresaron {cantidad} unidades correctamente. El stock actual es de: {productoBuscado.Cantidad}");
+
+        if (productoBuscado.SobreStock)
+        {
+            MostrarAdvertencia($"Sobrestock: el máximo es {productoBuscado.StockMaximo} unidades.");        }
+    }
+
+    private void RegistrarEgreso()
+    {
+        Console.Write("Escribir ID del producto a egresar: ");
+        string id = Console.ReadLine();
+        int cantidad = LeerEntero("Escribir cantidad del producto a egresar: ");
+        Producto productoBuscado = _inventario.BuscarPorId(id);
+
+        _inventario.RegistrarEgreso(id, cantidad);
+
+        MostrarExito($"Se egresaron {cantidad} unidades correctamente. El stock actual es de: {productoBuscado.Cantidad}");
+
+        if (productoBuscado.FaltaStock)
+        {
+            MostrarAdvertencia($"Stock en o bajo el mínimo ({productoBuscado.StockMinimo} unidades). Hay que reponer.");        }
+    }
+    private void EliminarProducto()
+    {
+        Console.Write("Escribir ID del producto a eliminar: ");
+        string id = Console.ReadLine();
+        _inventario.Eliminar(id);
+
+        MostrarExito("El producto se eliminó correctamente.");        
+    }
+    private void Alertas()
+    {
+        bool hayAlertas=false;
+        foreach (Producto producto in _inventario.Productos)
+        {
+            if (producto.FaltaStock)
+            {
+                MostrarAdvertencia($"{producto.Id} - {producto.Nombre}: stock en o bajo el mínimo ({producto.Cantidad} de {producto.StockMinimo} unidades). Hay que reponer.");
+                hayAlertas=true;
+            }
+            if (producto.SobreStock)
+            {
+                MostrarAdvertencia($"{producto.Id} - {producto.Nombre}: sobrestock ({producto.Cantidad} de un máximo de {producto.StockMaximo} unidades).");
+                hayAlertas=true;
+            }
+        }
+            if (!hayAlertas)
+            {
+                MostrarExito("No hay productos con alertas.");
+            }
+    }
+
     private int LeerEntero(string mensaje)
     {
         while (true)
@@ -134,6 +220,13 @@ public class MenuConsola
     private void MostrarError(string mensaje)
     {
         Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine(mensaje);
+        Console.ResetColor();
+    }
+
+    private void MostrarAdvertencia(string mensaje)
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine(mensaje);
         Console.ResetColor();
     }
